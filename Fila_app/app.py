@@ -3,16 +3,61 @@ from db import listar_pedidos, criar_pedido, mover_pedido
 
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 
-# login simples (sem auth por enquanto, só para identificar ações)
-if "usuario" not in st.session_state:
-    st.session_state.usuario = ""
+# ======================
+# LOGIN / SESSÃO
+# ======================
 
-st.sidebar.header("Usuário")
-st.session_state.usuario = st.sidebar.text_input("Nome", value=st.session_state.usuario).strip()
+USUARIOS_POR_SETOR = {
+    "VENDAS": ["Amanda", "Arthur", "Carla", "Jaqueline", "Marilene", "Romulo"],
+    "MONTAGEM": ["João", "Ricardo", "Marco"],
+}
 
-if not st.session_state.usuario:
-    st.info("Digite seu nome no menu lateral para usar o sistema.")
+if "usuario_logado" not in st.session_state:
+    st.session_state.usuario_logado = None
+
+if "setor_usuario" not in st.session_state:
+    st.session_state.setor_usuario = None
+
+def tela_login():
+    st.title("Login")
+
+    setor = st.selectbox(
+        "Setor",
+        ["", "VENDAS", "MONTAGEM"],
+        key="login_setor"
+    )
+
+    usuarios = USUARIOS_POR_SETOR.get(setor, [])
+    usuario = st.selectbox(
+        "Usuário",
+        [""] + usuarios,
+        key="login_usuario"
+    )
+
+    if st.button("Entrar"):
+        if not setor or not usuario:
+            st.error("Selecione setor e usuário.")
+            return
+
+        st.session_state.setor_usuario = setor
+        st.session_state.usuario_logado = usuario
+        st.rerun()
+
+
+if not st.session_state.usuario_logado:
+    tela_login()
     st.stop()
+
+st.caption(
+    f"Logado como **{st.session_state.usuario_logado}** "
+    f"({st.session_state.setor_usuario})"
+)
+
+if st.button("Trocar usuário"):
+    st.session_state.usuario_logado = None
+    st.session_state.setor_usuario = None
+    st.rerun()
+
 
 st.title("Fila de Pedidos")
 
@@ -42,7 +87,7 @@ with st.expander("Criar pedido", expanded=True):
         if not numero or not nome:
             st.warning("Preencha número e nome.")
         else:
-            criar_pedido(numero, nome, estado, status, st.session_state.usuario)
+            criar_pedido(numero, nome, estado, status, st.session_state.usuario_logado)
             st.success("Criado.")
 
 st.divider()
@@ -73,7 +118,8 @@ for i, est in enumerate(estados):
                 if st.button("◀", key=f'back-{p["id"]}'):
                     idx = estados.index(est)
                     if idx > 0:
-                        ok = mover_pedido(p["id"], est, estados[idx-1], st.session_state.usuario)
+                        ok = mover_pedido(p["id"], est, estados[idx-1], st.session_state.usuario_logado
+)
                         if not ok:
                             st.warning("Não moveu (estado mudou).")
                         st.rerun()
