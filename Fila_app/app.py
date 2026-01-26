@@ -38,7 +38,7 @@ def tela_login():
         key="login_setor"
     )
 
-    usuarios = list(USUARIOS.get(setor, {}).keys())
+    usuarios = list(USUARIOS_POR_SETOR.get(setor, {}).keys())
     usuario = st.selectbox(
         "Usuário",
         [""] + usuarios,
@@ -56,7 +56,7 @@ def tela_login():
             st.error("Preencha setor, usuário e senha.")
             return
 
-        senha_correta = USUARIOS[setor].get(usuario)
+        senha_correta = USUARIOS_POR_SETOR[setor].get(usuario)
 
         if senha != senha_correta:
             st.error("Senha incorreta.")
