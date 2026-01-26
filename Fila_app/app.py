@@ -8,8 +8,19 @@ st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 # ======================
 
 USUARIOS_POR_SETOR = {
-    "VENDAS": ["Amanda", "Arthur", "Carla", "Jaqueline", "Marilene", "Romulo"],
-    "MONTAGEM": ["João", "Ricardo", "Marco"],
+    "VENDAS": {
+        "Amanda": "1234",
+        "Arthur": "1234",
+        "Carla": "1234",
+        "Jaqueline": "1234",
+        "Marilene": "1234",
+        "Romulo": "1234",
+    },
+    "MONTAGEM": {
+        "João": "1234",
+        "Ricardo": "1234",
+        "Marco": "1234"
+    }
 }
 
 if "usuario_logado" not in st.session_state:
@@ -27,21 +38,34 @@ def tela_login():
         key="login_setor"
     )
 
-    usuarios = USUARIOS_POR_SETOR.get(setor, [])
+    usuarios = list(USUARIOS.get(setor, {}).keys())
     usuario = st.selectbox(
         "Usuário",
         [""] + usuarios,
         key="login_usuario"
     )
 
+    senha = st.text_input(
+        "Senha",
+        type="password",
+        key="login_senha"
+    )
+
     if st.button("Entrar"):
-        if not setor or not usuario:
-            st.error("Selecione setor e usuário.")
+        if not setor or not usuario or not senha:
+            st.error("Preencha setor, usuário e senha.")
+            return
+
+        senha_correta = USUARIOS[setor].get(usuario)
+
+        if senha != senha_correta:
+            st.error("Senha incorreta.")
             return
 
         st.session_state.setor_usuario = setor
         st.session_state.usuario_logado = usuario
         st.rerun()
+
 
 
 if not st.session_state.usuario_logado:
