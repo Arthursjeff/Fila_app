@@ -259,16 +259,28 @@ estados = ESTADOS_DB
 # BLOCO 4.1 — LAYOUT KANBAN BASE
 # ======================
 
-# Estados visuais (ordem importa)
-ESTADOS_VISUAIS = [
+HIDDEN_ESTADO = "PROGRAMADOS_IMPORTACAO"  # fila oculta (só no botão)
+
+ESTADOS_VISIVEIS = [
     "PEDIDO",
     "EM_MONTAGEM",
-    "PROGRAMADOS_IMPORTACAO",
     "MONTADOS",
     "FATURADO",
     "EMBALADO",
     "RETIRADO",
 ]
+
+# usado só para avançar/voltar corretamente (inclui a oculta na ordem real)
+ESTADOS_ORDEM_COMPLETA = [
+    "PEDIDO",
+    "EM_MONTAGEM",
+    HIDDEN_ESTADO,
+    "MONTADOS",
+    "FATURADO",
+    "EMBALADO",
+    "RETIRADO",
+]
+
 
 
 COR_POR_ESTADO = {
@@ -446,14 +458,14 @@ def render_setor_base(estado, container):
                     # ======================
                     # BOTÕES DE MOVIMENTAÇÃO
                     # ======================
-                    idx = ESTADOS_VISUAIS.index(estado)
+                    idx = ESTADOS_ORDEM_COMPLETA.index(estado)
 
                     c1, c2 = st.columns(2)
 
                     # ← VOLTAR
                     with c1:
                         if idx > 0:
-                            destino_voltar = ESTADOS_VISUAIS[idx - 1]
+                            destino_voltar = ESTADOS_ORDEM_COMPLETA[idx - 1]
                             permitido = pode_mover(
                                 st.session_state.setor_usuario,
                                 estado,
@@ -479,8 +491,8 @@ def render_setor_base(estado, container):
 
                     # → AVANÇAR
                     with c2:
-                        if idx < len(ESTADOS_VISUAIS) - 1:
-                            destino_avancar = ESTADOS_VISUAIS[idx + 1]
+                        if idx < len(ESTADOS_ORDEM_COMPLETA) - 1:
+                            destino_avancar = ESTADOS_ORDEM_COMPLETA[idx + 1]
                             permitido = pode_mover(
                                 st.session_state.setor_usuario,
                                 estado,
@@ -530,13 +542,15 @@ linha1 = st.columns(3)
 linha2 = st.columns(3)
 linha3 = st.columns(1)
 
-for i, estado in enumerate(ESTADOS_VISUAIS[:3]):
+linha1 = st.columns(3)
+linha2 = st.columns(3)
+
+for i, estado in enumerate(ESTADOS_VISIVEIS[:3]):
     render_setor_base(estado, linha1[i])
 
-for i, estado in enumerate(ESTADOS_VISUAIS[3:6]):
+for i, estado in enumerate(ESTADOS_VISIVEIS[3:6]):
     render_setor_base(estado, linha2[i])
 
-render_setor_base(ESTADOS_VISUAIS[6], linha3[0])
 
 
 if st.session_state.get("show_nf_modal", False):
