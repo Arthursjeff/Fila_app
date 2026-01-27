@@ -83,41 +83,31 @@ def criar_pedido(numero, nome, estado, status, usuario):
 def mover_pedido(pedido_id, estado_atual, novo_estado, usuario, setor_usuario):
     sb = get_supabase()
 
-    # 1) validar permissão no backend
-    destinos_permitidos = (
-        PERMISSOES_POR_SETOR
-        .get(setor_usuario, {})
-        .get(estado_atual, [])
-    )
-
-    if novo_estado not in destinos_permitidos:
+    # validar permissão
+    destinos = PERMISSOES_POR_SETOR.get(setor_usuario, {}).get(estado_atual, [])
+    if novo_estado not in destinos:
         return False
 
-    agora = datetime.utcnow().isoformat()
-
-    # 2) atualizar pedido SOMENTE se o estado atual bater
     res = (
         sb.table("pedidos")
         .update({
             "estado_atual": novo_estado,
             "ultimo_mov_usuario": usuario,
-            "ultimo_mov_hora": agora,
+            "ultimo_mov_hora": datetime.utcnow().isoformat(),
         })
         .eq("id", pedido_id)
         .eq("estado_atual", estado_atual)
         .execute()
     )
 
-    # se não atualizou, alguém já moveu ou estado estava errado
     if not res.data:
         return False
 
-    # 3) registrar evento de movimentação
     registrar_evento(
-        pedido_id=pedido_id,
-        tipo_evento="MOVIMENTACAO",
-        descricao=f"{estado_atual} → {novo_estado}",
-        autor=usuario,
+        pedido_id,
+        "MOVIMENTACAO",
+        f"{estado_atual} → {novo_estado}",
+        usuario
     )
 
     return True
