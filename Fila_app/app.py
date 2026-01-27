@@ -1,7 +1,9 @@
 import streamlit as st
-from db import listar_pedidos, criar_pedido, mover_pedido
+from db import listar_pedidos, criar_pedido, mover_pedido, mover_pedido_com_nf
 
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
+st.session_state.setdefault("show_nf_modal", False)
+st.session_state.setdefault("nf_pedido_id", None)
 
 # ======================
 # CONFIG / CONSTANTES
@@ -191,6 +193,57 @@ def pode_mover(setor_usuario, estado_atual, destino):
         .get("MOVE", {}) \
         .get(estado_atual, [])
 
+# ======================
+# NOTA FISCAL — MODAL
+# ======================
+
+def abrir_modal_nf(pedido_id):
+    st.session_state["nf_pedido_id"] = pedido_id
+    st.session_state["show_nf_modal"] = True
+
+def fechar_modal_nf():
+    st.session_state["nf_pedido_id"] = None
+    st.session_state["show_nf_modal"] = False
+
+
+@st.dialog("🧾 Registrar Nota Fiscal")
+def dialog_nota_fiscal():
+    pid = st.session_state.get("nf_pedido_id")
+    if not pid:
+        st.error("Pedido inválido.")
+        return
+
+    nota = st.text_input("Número da Nota Fiscal", placeholder="Ex.: 30000")
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Salvar", type="primary"):
+            if not nota.strip():
+                st.warning("Informe a Nota Fiscal.")
+                return
+
+            # salva NF + evento e move
+            ok = mover_pedido_com_nf(
+                pedido_id=pid,
+                nota_fiscal=nota.strip(),
+                usuario=st.session_state.usuario_logado,
+                setor_usuario=st.session_state.setor_usuario
+            )
+
+            if not ok:
+                st.error("Não foi possível registrar a NF.")
+                return
+
+            fechar_modal_nf()
+            st.session_state.ui["pedido_aberto"] = None
+            st.rerun()
+
+    with c2:
+        if st.button("Cancelar"):
+            fechar_modal_nf()
+            st.rerun()
+
+
 
 def render_setor_base(estado, container):
     pedidos_setor = [
@@ -313,13 +366,20 @@ def render_setor_base(estado, container):
                                 key=f"next-{p['id']}",
                                 disabled=not permitido
                             ):
-                                mover_pedido(
-                                    p["id"],
-                                    estado,
-                                    destino_avancar,
-                                    st.session_state.usuario_logado,
-                                    st.session_state.setor_usuario
-                                )
+                                # REGRA ESPECIAL: VENDAS + MONTADOS abre NF
+                                if (
+                                    st.session_state.setor_usuario == "VENDAS"
+                                    and estado == "MONTADOS"
+                                ):
+                                    abrir_modal_nf(p["id"])
+                                else:
+                                    mover_pedido(
+                                        p["id"],
+                                        estado,
+                                        destino_avancar,
+                                        st.session_state.usuario_logado,
+                                        st.session_state.setor_usuario
+                                    )
                                 st.session_state.ui["pedido_aberto"] = None
                                 st.rerun()
                         else:
@@ -373,3 +433,7 @@ else:
     st.info("Somente VENDAS pode criar pedidos.")
 
 st.divider()
+
+
+if st.session_state.get("show_nf_modal", False):
+    dialog_nota_fiscal()
