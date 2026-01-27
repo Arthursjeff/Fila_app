@@ -1,9 +1,13 @@
 import streamlit as st
 from core import init_session, inject_css, gate_login
 
-st.set_page_config(page_title="Sistema de Pedidos", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="Sistema de Pedidos",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Inicialização global
+# Init global
 init_session()
 inject_css()
 gate_login()
@@ -14,12 +18,8 @@ st.caption(
     f"({st.session_state.setor_usuario})"
 )
 
-with st.sidebar:
-    st.markdown("### Navegação")
-
-
 st.markdown("""
 Use o menu lateral à esquerda para navegar entre as páginas:
-- ➕ Criar Pedido  
-- 📋 Fila de Pedidos  
+- ➕ Criar Pedido
+- 📦 Fila de Pedidos
 """)
