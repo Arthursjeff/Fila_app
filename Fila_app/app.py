@@ -14,6 +14,8 @@ st.caption(
     f"({st.session_state.setor_usuario})"
 )
 
+with st.sidebar:
+    st.markdown("### Navegação")
 
 
 st.markdown("""
