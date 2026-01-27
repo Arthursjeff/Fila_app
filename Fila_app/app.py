@@ -138,15 +138,19 @@ st.divider()
 # CRIAR PEDIDO — LEGADO (SIMPLES)
 # ======================
 
-if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
 with st.expander("Criar pedido", expanded=True):
 
+    # ======================
+    # CAMPOS
+    # ======================
     c1, c2 = st.columns([1, 3])
+
     numero = c1.text_input(
         "Número",
         placeholder="Ex.: 123",
         key="numero"
     )
+
     nome = c2.text_input(
         "Nome / Cliente",
         placeholder="Ex.: Nome do cliente",
@@ -212,6 +216,7 @@ with st.expander("Criar pedido", expanded=True):
             use_container_width=True,
             disabled=True
         )
+
 
 st.divider()
 
