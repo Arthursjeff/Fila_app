@@ -135,53 +135,53 @@ st.title("Fila de Pedidos")
 st.divider()
 
 # ======================
-# CRIAR PEDIDO — LEGADO (SIMPLES)
+# ÁREA SUPERIOR — CRIAR + BOTÕES (LAYOUT LEGADO)
 # ======================
 
-with st.expander("Criar pedido", expanded=True):
+col_criar, col_botoes = st.columns([3, 2])
 
-    # ======================
-    # CAMPOS
-    # ======================
-    c1, c2 = st.columns([1, 3])
+# ======================
+# COLUNA ESQUERDA — CRIAR PEDIDO
+# ======================
+with col_criar:
+    with st.expander("Criar pedido", expanded=True):
 
-    numero = c1.text_input(
-        "Número",
-        placeholder="Ex.: 123",
-        key="numero"
-    )
+        c1, c2 = st.columns([1, 3])
 
-    nome = c2.text_input(
-        "Nome / Cliente",
-        placeholder="Ex.: Nome do cliente",
-        key="nome"
-    )
+        numero = c1.text_input(
+            "Número",
+            placeholder="Ex.: 123",
+            key="numero"
+        )
 
-    # ======================
-    # BOTÃO CRIAR
-    # ======================
-    if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
-        if st.button("Criar"):
-            if not numero or not nome:
-                st.warning("Preencha número e nome.")
-            else:
-                criar_pedido(
-                    numero=numero,
-                    nome=nome,
-                    estado="PEDIDO",
-                    status="ATIVO",
-                    usuario=st.session_state.usuario_logado
-                )
-                st.success("Pedido criado.")
-                st.rerun()
-    else:
-        st.caption("🔒 Somente VENDAS pode criar pedidos.")
+        nome = c2.text_input(
+            "Nome / Cliente",
+            placeholder="Ex.: Nome do cliente",
+            key="nome"
+        )
 
-    st.divider()
+        if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
+            if st.button("Criar"):
+                if not numero or not nome:
+                    st.warning("Preencha número e nome.")
+                else:
+                    criar_pedido(
+                        numero=numero,
+                        nome=nome,
+                        estado="PEDIDO",
+                        status="ATIVO",
+                        usuario=st.session_state.usuario_logado
+                    )
+                    st.success("Pedido criado.")
+                    st.rerun()
+        else:
+            st.caption("🔒 Somente VENDAS pode criar pedidos.")
 
-    # ======================
-    # BOTÕES AUXILIARES (LEGADO)
-    # ======================
+# ======================
+# COLUNA DIREITA — BOTÕES AUXILIARES (2 × 2)
+# ======================
+with col_botoes:
+
     b1, b2 = st.columns(2)
     b3, b4 = st.columns(2)
 
@@ -216,7 +216,6 @@ with st.expander("Criar pedido", expanded=True):
             use_container_width=True,
             disabled=True
         )
-
 
 st.divider()
 
