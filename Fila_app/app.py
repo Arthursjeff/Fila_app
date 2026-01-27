@@ -14,6 +14,21 @@ st.caption(
     f"({st.session_state.setor_usuario})"
 )
 
+with st.sidebar:
+    st.markdown("## 📂 Navegação")
+
+    st.page_link("pages/1_➕_Criar_Pedidos.py", label="➕ Criar Pedido")
+    st.page_link("pages/2_📦_Fila_de_Pedidos.py", label="📦 Fila de Pedidos")
+
+    st.divider()
+
+    st.caption(
+        f"👤 {st.session_state.usuario_logado} "
+        f"({st.session_state.setor_usuario})"
+    )
+
+
+
 st.markdown("""
 Use o menu lateral à esquerda para navegar entre as páginas:
 - ➕ Criar Pedido  
