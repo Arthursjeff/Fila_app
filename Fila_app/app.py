@@ -1,5 +1,5 @@
 import streamlit as st
-from db import listar_pedidos, criar_pedido, mover_pedido, mover_pedido_com_nf
+from db import listar_pedidos, criar_pedido, mover_pedido, 
 
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 st.session_state.setdefault("show_nf_modal", False)
