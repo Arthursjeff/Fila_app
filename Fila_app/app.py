@@ -1,5 +1,5 @@
 import streamlit as st
-from db import listar_pedidos, criar_pedido, mover_pedido 
+from db import listar_pedidos, criar_pedido, mover_pedido, 
 
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 st.session_state.setdefault("show_nf_modal", False)
@@ -133,6 +133,55 @@ if st.button("Trocar usuário"):
 
 st.title("Fila de Pedidos")
 st.divider()
+
+# ======================
+# CRIAR PEDIDO (POSIÇÃO FINAL – UX LEGADO)
+# ======================
+
+if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
+    with st.expander("Criar pedido", expanded=True):
+        col1, col2, col3, col4 = st.columns(4)
+
+        numero = col1.text_input(
+            "Número",
+            placeholder="Ex.: 123"
+        )
+
+        nome = col2.text_input(
+            "Nome/Cliente",
+            placeholder="Ex.: Nome do cliente"
+        )
+
+        estado = col3.selectbox(
+            "Estado",
+            ESTADOS_DB,
+            index=0
+        )
+
+        status = col4.selectbox(
+            "Status",
+            STATUS_DB,
+            index=0
+        )
+
+        if st.button("Criar"):
+            if not numero or not nome:
+                st.warning("Preencha número e nome.")
+            else:
+                criar_pedido(
+                    numero=numero,
+                    nome=nome,
+                    estado=estado,
+                    status=status,
+                    usuario=st.session_state.usuario_logado
+                )
+                st.success("Pedido criado.")
+                st.rerun()
+else:
+    st.caption("🔒 Somente VENDAS pode criar pedidos.")
+
+st.divider()
+
 
 # Carregar pedidos
 pedidos = listar_pedidos()
@@ -413,28 +462,5 @@ for i, estado in enumerate(ESTADOS_VISUAIS[3:6]):
 render_setor_base(ESTADOS_VISUAIS[6], linha3[0])
 
 
-# Bloco: Criar pedido (somente se permitido)
-if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
-    with st.expander("Criar pedido", expanded=True):
-        col1, col2, col3, col4 = st.columns(4)
-        numero = col1.text_input("Número")
-        nome = col2.text_input("Nome/Cliente")
-        estado = col3.selectbox("Estado", ESTADOS_DB)
-        status = col4.selectbox("Status", STATUS_DB)
-
-        if st.button("Criar"):
-            if not numero or not nome:
-                st.warning("Preencha número e nome.")
-            else:
-                criar_pedido(numero, nome, estado, status, st.session_state.usuario_logado)
-                st.success("Criado.")
-                st.rerun()
-else:
-    st.info("Somente VENDAS pode criar pedidos.")
-
-st.divider()
-
-
 if st.session_state.get("show_nf_modal", False):
     dialog_nota_fiscal()
-
