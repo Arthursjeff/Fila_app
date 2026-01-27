@@ -145,15 +145,6 @@ ESTADOS_VISUAIS = [
     "RETIRADO",
 ]
 
-ESTADO_LABEL = {
-    "PEDIDO": "Pedidos",
-    "EM_MONTAGEM": "Em Montagem",
-    "PROGRAMADOS_IMPORTACAO": "Programados / Importação",
-    "MONTADOS": "Montados",
-    "FATURADO": "Faturados",
-    "EMBALADO": "Embalados",
-    "RETIRADO": "Retirados",
-}
 
 COR_POR_ESTADO = {
     "PEDIDO": "#FFA500",
@@ -164,6 +155,25 @@ COR_POR_ESTADO = {
     "EMBALADO": "#D8B4FE",
     "RETIRADO": "#A9A9A9",
 }
+
+
+def _hora_curta(p):
+    return (
+        p.get("ultimo_mov_hora")
+        or p.get("ultima_hora")
+        or ""
+    )
+
+def _usuario_curto(p):
+    return (
+        p.get("ultimo_mov_usuario")
+        or p.get("ultimo_usuario")
+        or ""
+    )
+
+def _label_compacto(p):
+    return f"{p['numero_pedido']} - {p['nome_pedido']} — {_hora_curta(p)} — {_usuario_curto(p)}"
+
 
 
 def render_setor_base(estado, container):
@@ -193,9 +203,12 @@ def render_setor_base(estado, container):
 
         # Placeholder visual (cartões virão no próximo bloco)
         for p in pedidos_setor:
-            st.markdown(
-                f"- {p['numero_pedido']} • {p['nome_pedido']}",
+            st.button(
+                _label_compacto(p),
+                key=f"card-{p['id']}",
+                use_container_width=True,
             )
+
 
 
 # ======================
@@ -235,36 +248,3 @@ else:
     st.info("Somente VENDAS pode criar pedidos.")
 
 st.divider()
-
-# Kanban com permissões por setor
-tipo = st.session_state.setor_usuario
-move_map = PERMISSOES_POR_TIPO[tipo]["MOVE"]
-
-cols = st.columns(len(estados))
-
-for i, est in enumerate(estados):
-    with cols[i]:
-        st.subheader(ESTADO_LABEL[est])
-
-        pedidos_do_estado = [x for x in pedidos if x.get("estado_atual") == est]
-        for p in pedidos_do_estado:
-            st.caption(f'{p.get("numero_pedido")} • {p.get("status")}')
-            st.write(p.get("nome_pedido"))
-
-            destinos = move_map.get(est, [])
-
-            # Só mostra botões para destinos permitidos
-            for destino in destinos:
-                if st.button(
-                    f"Mover → {ESTADO_LABEL[destino]}",
-                    key=f'{p["id"]}-{destino}'
-                ):
-                    mover_pedido(
-                        p["id"],
-                        est,
-                        destino,
-                        st.session_state.usuario_logado
-                    )
-                    st.rerun()
-
-            st.divider()
