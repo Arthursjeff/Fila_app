@@ -139,12 +139,24 @@ st.divider()
 # ======================
 
 if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
-    with st.expander("Criar pedido", expanded=True):
+with st.expander("Criar pedido", expanded=True):
 
-        c1, c2 = st.columns([1, 3])
-        numero = c1.text_input("Número", placeholder="Ex.: 123")
-        nome   = c2.text_input("Nome / Cliente", placeholder="Ex.: Nome do cliente")
+    c1, c2 = st.columns([1, 3])
+    numero = c1.text_input(
+        "Número",
+        placeholder="Ex.: 123",
+        key="numero"
+    )
+    nome = c2.text_input(
+        "Nome / Cliente",
+        placeholder="Ex.: Nome do cliente",
+        key="nome"
+    )
 
+    # ======================
+    # BOTÃO CRIAR
+    # ======================
+    if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
         if st.button("Criar"):
             if not numero or not nome:
                 st.warning("Preencha número e nome.")
@@ -158,10 +170,52 @@ if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
                 )
                 st.success("Pedido criado.")
                 st.rerun()
-else:
-    st.caption("🔒 Somente VENDAS pode criar pedidos.")
+    else:
+        st.caption("🔒 Somente VENDAS pode criar pedidos.")
+
+    st.divider()
+
+    # ======================
+    # BOTÕES AUXILIARES (LEGADO)
+    # ======================
+    b1, b2 = st.columns(2)
+    b3, b4 = st.columns(2)
+
+    # 🧹 LIMPAR CAMPOS
+    with b1:
+        if st.button("🧹 Limpar tudo", use_container_width=True):
+            st.session_state["numero"] = ""
+            st.session_state["nome"] = ""
+            st.rerun()
+
+    # 📦 FILA OCULTA
+    with b2:
+        st.button(
+            "📦 Fila oculta",
+            help="Programados + Importação",
+            use_container_width=True,
+            disabled=True
+        )
+
+    # 📥 EXPORTAR EXCEL
+    with b3:
+        st.button(
+            "📥 Baixar Excel",
+            use_container_width=True,
+            disabled=True
+        )
+
+    # 🔘 RESERVA
+    with b4:
+        st.button(
+            "🔘 Reserva",
+            use_container_width=True,
+            disabled=True
+        )
 
 st.divider()
+
+
 
 
 # Carregar pedidos
