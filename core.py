@@ -47,28 +47,28 @@ USUARIOS = {
 ESTADOS_VISUAIS = [
     "PEDIDO",
     "EM_MONTAGEM",
-    "PROGRAMADOS_IMPORTACAO",
     "MONTADOS",
     "FATURADO",
     "EMBALADO",
+    "RETIRADOS",
 ]
 
 ESTADO_LABEL = {
     "PEDIDO": "Pedidos",
     "EM_MONTAGEM": "Em Montagem",
-    "PROGRAMADOS_IMPORTACAO": "Programados / Importação",
     "MONTADOS": "Montados",
     "FATURADO": "Faturados",
     "EMBALADO": "Embalados",
+    "RETIRADO": "Retirados",
 }
 
 COR_POR_ESTADO = {
     "PEDIDO": "#FFA500",
     "EM_MONTAGEM": "#FFF8B5",
-    "PROGRAMADOS_IMPORTACAO": "#C4B5FD",
     "MONTADOS": "#90EE90",
     "FATURADO": "#87CEFA",
     "EMBALADO": "#D8B4FE",
+    "RETIRADO": "#A9A9A9",
 }
 
 # ==========================================================
