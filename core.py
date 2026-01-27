@@ -270,7 +270,7 @@ def render_setor(estado, container, pedidos):
                         if idx > 0:
                             destino = ESTADOS_VISUAIS[idx - 1]
                             if st.button("⬅️ Voltar", disabled=not pode_mover(
-                                st.session_state.setor_usuario, estado, destino
+                                estado, destino
                             )):
                                 mover_pedido(p["id"], estado, destino,
                                              st.session_state.usuario_logado,
@@ -284,7 +284,7 @@ def render_setor(estado, container, pedidos):
                         if idx < len(ESTADOS_VISUAIS) - 1:
                             destino = ESTADOS_VISUAIS[idx + 1]
                             if st.button("➡️ Avançar", disabled=not pode_mover(
-                                st.session_state.setor_usuario, estado, destino
+                                 estado, destino
                             )):
                                 mover_pedido(p["id"], estado, destino,
                                              st.session_state.usuario_logado,
