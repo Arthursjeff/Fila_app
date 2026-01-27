@@ -103,6 +103,12 @@ def tela_login():
         st.rerun()
 
 
+if "ui" not in st.session_state:
+    st.session_state.ui = {
+        "pedido_aberto": None
+    }
+
+
 # Gate do app
 if not st.session_state.usuario_logado:
     tela_login()
@@ -175,6 +181,11 @@ def _label_compacto(p):
     return f"{p['numero_pedido']} - {p['nome_pedido']} — {_hora_curta(p)} — {_usuario_curto(p)}"
 
 
+def toggle_pedido(pedido_id):
+    atual = st.session_state.ui.get("pedido_aberto")
+    st.session_state.ui["pedido_aberto"] = None if atual == pedido_id else pedido_id
+
+
 
 def render_setor_base(estado, container):
     pedidos_setor = [
@@ -183,12 +194,16 @@ def render_setor_base(estado, container):
     ]
 
     with container:
-        # Título + contador
+        # ======================
+        # TÍTULO + CONTADOR
+        # ======================
         st.markdown(
             f"### {ESTADO_LABEL[estado]} ({len(pedidos_setor)})"
         )
 
-        # Barra colorida
+        # ======================
+        # BARRA COLORIDA
+        # ======================
         st.markdown(
             f"""
             <div style="
@@ -201,13 +216,64 @@ def render_setor_base(estado, container):
             unsafe_allow_html=True
         )
 
-        # Placeholder visual (cartões virão no próximo bloco)
+        # ======================
+        # CARTÕES DO SETOR
+        # ======================
         for p in pedidos_setor:
-            st.button(
-                _label_compacto(p),
-                key=f"card-{p['id']}",
-                use_container_width=True,
-            )
+            aberto = st.session_state.ui.get("pedido_aberto") == p["id"]
+
+            # ===== CARTÃO FECHADO =====
+            if not aberto:
+                if st.button(
+                    _label_compacto(p),
+                    key=f"open-{p['id']}",
+                    use_container_width=True,
+                ):
+                    toggle_pedido(p["id"])
+                    st.rerun()
+
+            # ===== CARTÃO ABERTO =====
+            else:
+                with st.container(border=True):
+                    st.markdown(
+                        f"### {p['numero_pedido']} - {p['nome_pedido']}"
+                    )
+
+                    # Última movimentação
+                    if p.get("ultimo_mov_hora"):
+                        st.caption(
+                            f"Última movimentação: "
+                            f"{p.get('ultimo_mov_hora')} • "
+                            f"{p.get('ultimo_mov_usuario')}"
+                        )
+
+                    st.divider()
+
+                    # Histórico (últimos 5 eventos)
+                    if p.get("historico"):
+                        st.markdown("**Histórico:**")
+                        for h in p["historico"][-5:][::-1]:
+                            st.write(f"• {h}")
+                    else:
+                        st.caption("Sem histórico.")
+
+                    st.divider()
+
+                    # Botões (placeholder — regras entram no próximo bloco)
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.button("⬅️ Voltar", disabled=True)
+                    with c2:
+                        st.button("➡️ Avançar", disabled=True)
+
+                    st.divider()
+
+                    if st.button(
+                        "⬆️ Fechar",
+                        key=f"close-{p['id']}"
+                    ):
+                        toggle_pedido(p["id"])
+                        st.rerun()
 
 
 
