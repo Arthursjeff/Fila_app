@@ -1,7 +1,7 @@
 import streamlit as st
 from core import init_session, inject_css, gate_login
 
-st.set_page_config(page_title="Sistema de Pedidos", layout="wide")
+st.set_page_config(page_title="Sistema de Pedidos", layout="wide", initial_sidebar_state="expanded")
 
 # Inicialização global
 init_session()
