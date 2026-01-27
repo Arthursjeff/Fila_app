@@ -5,40 +5,44 @@ from db import listar_pedidos, criar_pedido, mover_pedido
 # CONFIGURAÇÕES GERAIS / CONSTANTES
 # ==========================================================
 
-USUARIOS_POR_SETOR = {
-    "VENDAS": {
-        "Amanda": "1234",
-        "Arthur": "1234",
-        "Carla": "1234",
-        "Jaqueline": "1234",
-        "Marilene": "1234",
-        "Romulo": "1234",
+USUARIOS = {
+    "arthur": {
+        "senha": "1234",
+        "nome": "Arthur",
+        "setor": "VENDAS",
+        "permissoes": {
+            "CRIAR_PEDIDO": True,
+            "MOVE": {
+                "MONTADOS": ["FATURADO"],
+            },
+        },
     },
-    "MONTAGEM": {
-        "João": "1234",
-        "Ricardo": "1234",
-        "Marco": "1234",
+    "amanda": {
+        "senha": "1234",
+        "nome": "Amanda",
+        "setor": "VENDAS",
+        "permissoes": {
+            "CRIAR_PEDIDO": True,
+            "MOVE": {},
+        },
+    },
+    "joao": {
+        "senha": "1234",
+        "nome": "João",
+        "setor": "MONTAGEM",
+        "permissoes": {
+            "CRIAR_PEDIDO": False,
+            "MOVE": {
+                "PEDIDO": ["EM_MONTAGEM"],
+                "EM_MONTAGEM": ["PROGRAMADOS_IMPORTACAO", "MONTADOS"],
+                "PROGRAMADOS_IMPORTACAO": ["MONTADOS"],
+                "FATURADO": ["EMBALADO"],
+                "EMBALADO": ["RETIRADO"],
+            },
+        },
     },
 }
 
-PERMISSOES_POR_TIPO = {
-    "VENDAS": {
-        "CRIAR": True,
-        "MOVE": {
-            "MONTADOS": ["FATURADO"],
-        },
-    },
-    "MONTAGEM": {
-        "CRIAR": False,
-        "MOVE": {
-            "PEDIDO": ["EM_MONTAGEM"],
-            "EM_MONTAGEM": ["PROGRAMADOS_IMPORTACAO", "MONTADOS"],
-            "PROGRAMADOS_IMPORTACAO": ["MONTADOS"],
-            "FATURADO": ["EMBALADO"],
-            "EMBALADO": ["RETIRADO"],
-        },
-    },
-}
 
 ESTADOS_VISUAIS = [
     "PEDIDO",
@@ -133,23 +137,28 @@ def tela_login():
         st.rerun()
 
 def gate_login():
-    import streamlit as st
-
     st.title("🔐 Login")
 
-    usuario = st.text_input("Usuário")
+    usuario = st.text_input("Usuário").strip().lower()
     senha = st.text_input("Senha", type="password")
 
     if st.button("Entrar"):
-        # EXEMPLO — adapte à sua validação real
-        if usuario == "arthur" and senha == "123":
-            st.session_state.logado = True
-            st.session_state.usuario_logado = usuario
-            st.session_state.setor_usuario = "VENDAS"
+        if usuario not in USUARIOS:
+            st.error("Usuário inválido")
+            return
 
-            st.rerun()  # 🔴 ISSO É O QUE ESTAVA FALTANDO
-        else:
-            st.error("Usuário ou senha inválidos")
+        if senha != USUARIOS[usuario]["senha"]:
+            st.error("Senha incorreta")
+            return
+
+        st.session_state.logado = True
+        st.session_state.usuario_logado = usuario
+        st.session_state.nome_usuario = USUARIOS[usuario]["nome"]
+        st.session_state.setor_usuario = USUARIOS[usuario]["setor"]
+        st.session_state.permissoes = USUARIOS[usuario]["permissoes"]
+
+        st.rerun()
+
 
 # ==========================================================
 # HELPERS
@@ -174,8 +183,10 @@ def toggle_pedido(pid):
     atual = st.session_state.ui.get("pedido_aberto")
     st.session_state.ui["pedido_aberto"] = None if atual == pid else pid
 
-def pode_mover(setor, estado_atual, destino):
-    return destino in PERMISSOES_POR_TIPO.get(setor, {}).get("MOVE", {}).get(estado_atual, [])
+def pode_mover(estado_atual, destino):
+    perms = st.session_state.permissoes.get("MOVE", {})
+    return destino in perms.get(estado_atual, [])
+
 
 # ==========================================================
 # RENDER — CRIAR PEDIDO
@@ -192,7 +203,7 @@ def render_criar_pedido():
     numero = st.text_input("Número", key="numero")
     nome = st.text_input("Nome / Cliente", key="nome")
 
-    if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
+    if st.session_state.permissoes.get("CRIAR_PEDIDO"):
         if st.button("Criar"):
             if not numero or not nome:
                 st.warning("Preencha número e nome.")
