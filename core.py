@@ -133,9 +133,23 @@ def tela_login():
         st.rerun()
 
 def gate_login():
-    if not st.session_state.usuario_logado:
-        tela_login()
-        st.stop()
+    import streamlit as st
+
+    st.title("🔐 Login")
+
+    usuario = st.text_input("Usuário")
+    senha = st.text_input("Senha", type="password")
+
+    if st.button("Entrar"):
+        # EXEMPLO — adapte à sua validação real
+        if usuario == "arthur" and senha == "123":
+            st.session_state.logado = True
+            st.session_state.usuario_logado = usuario
+            st.session_state.setor_usuario = "VENDAS"
+
+            st.rerun()  # 🔴 ISSO É O QUE ESTAVA FALTANDO
+        else:
+            st.error("Usuário ou senha inválidos")
 
 # ==========================================================
 # HELPERS
