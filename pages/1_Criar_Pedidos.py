@@ -12,4 +12,7 @@ init_session()
 inject_css()
 gate_login()
 
+if not st.session_state.get("logado", False):
+    st.switch_page("app.py")
+
 render_criar_pedido()
