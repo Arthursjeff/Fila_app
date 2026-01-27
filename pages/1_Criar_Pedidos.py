@@ -2,7 +2,6 @@ import streamlit as st
 from core import (
     init_session,
     inject_css,
-    gate_login,
     render_criar_pedido
 )
 
