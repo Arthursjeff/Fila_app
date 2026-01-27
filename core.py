@@ -206,6 +206,12 @@ def render_criar_pedido():
 
     numero = st.text_input("Número", key="numero")
     nome = st.text_input("Nome / Cliente", key="nome")
+   
+ tipo_pedido = st.radio(
+        "Tipo do pedido",
+        ["NORMAL", "PROGRAMADO", "IMPORTACAO"],
+        horizontal=True
+    )
 
     if st.session_state.permissoes.get("CRIAR_PEDIDO"):
         if st.button("Criar"):
@@ -217,6 +223,7 @@ def render_criar_pedido():
                     nome=nome,
                     estado="PEDIDO",
                     status="ATIVO",
+                    tipo=tipo_pedido,
                     usuario=st.session_state.usuario_logado
                 )
                 st.success("Pedido criado.")
