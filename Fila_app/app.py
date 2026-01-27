@@ -14,19 +14,6 @@ st.caption(
     f"({st.session_state.setor_usuario})"
 )
 
-with st.sidebar:
-    st.markdown("## 📂 Navegação")
-
-    st.page_link("pages/1_criar_pedidos.py", label="➕ Criar Pedido")
-    st.page_link("pages/2_fila_de_pedidos.py", label="📦 Fila de Pedidos")
-
-    st.divider()
-
-    st.caption(
-        f"👤 {st.session_state.usuario_logado} "
-        f"({st.session_state.setor_usuario})"
-    )
-
 
 
 st.markdown("""
