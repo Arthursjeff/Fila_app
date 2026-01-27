@@ -49,7 +49,7 @@ ESTADOS_VISUAIS = [
     "MONTADOS",
     "FATURADO",
     "EMBALADO",
-    "RETIRADOS",
+    "RETIRADO",
 ]
 
 ESTADO_LABEL = {
