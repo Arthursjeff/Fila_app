@@ -130,6 +130,91 @@ st.divider()
 pedidos = listar_pedidos()
 estados = ESTADOS_DB
 
+# ======================
+# BLOCO 4.1 — LAYOUT KANBAN BASE
+# ======================
+
+# Estados visuais (ordem importa)
+ESTADOS_VISUAIS = [
+    "PEDIDO",
+    "EM_MONTAGEM",
+    "PROGRAMADOS_IMPORTACAO",
+    "MONTADOS",
+    "FATURADO",
+    "EMBALADO",
+    "RETIRADO",
+]
+
+ESTADO_LABEL = {
+    "PEDIDO": "Pedidos",
+    "EM_MONTAGEM": "Em Montagem",
+    "PROGRAMADOS_IMPORTACAO": "Programados / Importação",
+    "MONTADOS": "Montados",
+    "FATURADO": "Faturados",
+    "EMBALADO": "Embalados",
+    "RETIRADO": "Retirados",
+}
+
+COR_POR_ESTADO = {
+    "PEDIDO": "#FFA500",
+    "EM_MONTAGEM": "#FFF8B5",
+    "PROGRAMADOS_IMPORTACAO": "#C4B5FD",
+    "MONTADOS": "#90EE90",
+    "FATURADO": "#87CEFA",
+    "EMBALADO": "#D8B4FE",
+    "RETIRADO": "#A9A9A9",
+}
+
+
+def render_setor_base(estado, container):
+    pedidos_setor = [
+        p for p in pedidos
+        if p["estado_atual"] == estado and p.get("status", "ATIVO") == "ATIVO"
+    ]
+
+    with container:
+        # Título + contador
+        st.markdown(
+            f"### {ESTADO_LABEL[estado]} ({len(pedidos_setor)})"
+        )
+
+        # Barra colorida
+        st.markdown(
+            f"""
+            <div style="
+                height: 12px;
+                background: {COR_POR_ESTADO[estado]};
+                border-radius: 999px;
+                margin: 6px 0 14px 0;
+            "></div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Placeholder visual (cartões virão no próximo bloco)
+        for p in pedidos_setor:
+            st.markdown(
+                f"- {p['numero_pedido']} • {p['nome_pedido']}",
+            )
+
+
+# ======================
+# RENDERIZAÇÃO 3 × 3
+# ======================
+
+linha1 = st.columns(3)
+linha2 = st.columns(3)
+linha3 = st.columns(1)
+
+for i, estado in enumerate(ESTADOS_VISUAIS[:3]):
+    render_setor_base(estado, linha1[i])
+
+for i, estado in enumerate(ESTADOS_VISUAIS[3:6]):
+    render_setor_base(estado, linha2[i])
+
+render_setor_base(ESTADOS_VISUAIS[6], linha3[0])
+
+
 # Bloco: Criar pedido (somente se permitido)
 if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
     with st.expander("Criar pedido", expanded=True):
