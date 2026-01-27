@@ -10,7 +10,7 @@ st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 
 init_session()
 inject_css()
-gate_login()
+
 
 if not st.session_state.get("logado", False):
     st.switch_page("app.py")
