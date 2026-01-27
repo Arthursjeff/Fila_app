@@ -1,5 +1,5 @@
 import streamlit as st
-from db import listar_pedidos, criar_pedido, mover_pedido, 
+from db import listar_pedidos, criar_pedido, mover_pedido 
 
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 st.session_state.setdefault("show_nf_modal", False)
@@ -437,3 +437,4 @@ st.divider()
 
 if st.session_state.get("show_nf_modal", False):
     dialog_nota_fiscal()
+
