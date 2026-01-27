@@ -60,6 +60,7 @@ def criar_pedido(numero, nome, estado, status, usuario):
             "nome_pedido": nome,
             "estado_atual": estado,
             "status": status,
+            "tipo_pedido": tipo,
             "criado_por": usuario,
             "criado_em": agora,
             "ultimo_usuario": usuario,
