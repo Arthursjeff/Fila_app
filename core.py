@@ -76,10 +76,15 @@ COR_POR_ESTADO = {
 # ==========================================================
 
 def init_session():
-    import streamlit as st
     st.session_state.setdefault("logado", False)
     st.session_state.setdefault("usuario_logado", None)
+    st.session_state.setdefault("nome_usuario", None)
     st.session_state.setdefault("setor_usuario", None)
+    st.session_state.setdefault("permissoes", {})
+
+    # 🔴 ISSO FALTAVA E QUEBRAVA A FILA
+    st.session_state.setdefault("ui", {})
+    st.session_state.ui.setdefault("pedido_aberto", None)
 
 
 # ==========================================================
