@@ -17,8 +17,8 @@ st.caption(
 with st.sidebar:
     st.markdown("## 📂 Navegação")
 
-    st.page_link("pages/1_➕_Criar_Pedidos.py", label="➕ Criar Pedido")
-    st.page_link("pages/2_📦_Fila_de_Pedidos.py", label="📦 Fila de Pedidos")
+    st.page_link("pages/1_Criar_Pedidos.py", label="➕ Criar Pedido")
+    st.page_link("pages/2_Fila_de_Pedidos.py", label="📦 Fila de Pedidos")
 
     st.divider()
 
