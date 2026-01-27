@@ -4,6 +4,7 @@ from db import listar_pedidos, criar_pedido, mover_pedido
 st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 st.session_state.setdefault("show_nf_modal", False)
 st.session_state.setdefault("nf_pedido_id", None)
+st.session_state.setdefault("show_fila_oculta", False)
 
 st.markdown("""
 <style>
@@ -163,6 +164,15 @@ if st.button("Trocar usuário"):
 st.title("Fila de Pedidos")
 st.divider()
 
+
+def abrir_fila_oculta():
+    st.session_state["show_fila_oculta"] = True
+
+def fechar_fila_oculta():
+    st.session_state["show_fila_oculta"] = False
+
+
+
 # ======================
 # ÁREA SUPERIOR — CRIAR + BOTÕES (LAYOUT LEGADO)
 # ======================
@@ -227,7 +237,7 @@ with col_botoes:
             "📦 Fila oculta",
             help="Programados + Importação",
             use_container_width=True,
-            disabled=True
+            on_click=abrir_fila_oculta
         )
 
     # 📥 EXPORTAR EXCEL
@@ -534,6 +544,16 @@ def render_setor_base(estado, container):
 
 
 
+
+@st.dialog("📦 Programados / Importação")
+def dialog_fila_oculta():
+    render_setor_base("PROGRAMADOS_IMPORTACAO", st.container())
+    st.divider()
+    if st.button("⬅️ Fechar"):
+        fechar_fila_oculta()
+        st.rerun()
+
+
 # ======================
 # RENDERIZAÇÃO 3 × 3
 # ======================
@@ -551,6 +571,9 @@ for i, estado in enumerate(ESTADOS_VISIVEIS[:3]):
 for i, estado in enumerate(ESTADOS_VISIVEIS[3:6]):
     render_setor_base(estado, linha2[i])
 
+
+if st.session_state.get("show_fila_oculta", False):
+    dialog_fila_oculta()
 
 
 if st.session_state.get("show_nf_modal", False):
