@@ -4,6 +4,24 @@ from datetime import datetime
 
 
 # ======================
+# REGRAS DE PERMISSÃO (BACKEND)
+# ======================
+
+PERMISSOES_POR_SETOR = {
+    "VENDAS": {
+        "MONTADOS": ["FATURADO"],
+    },
+    "MONTAGEM": {
+        "PEDIDO": ["EM_MONTAGEM"],
+        "EM_MONTAGEM": ["PROGRAMADOS_IMPORTACAO", "MONTADOS"],
+        "PROGRAMADOS_IMPORTACAO": ["MONTADOS"],
+        "FATURADO": ["EMBALADO"],
+        "EMBALADO": ["RETIRADO"],
+    },
+}
+
+
+# ======================
 # CONEXÃO SUPABASE
 # ======================
 
@@ -32,6 +50,8 @@ def listar_pedidos():
 def criar_pedido(numero, nome, estado, status, usuario):
     sb = get_supabase()
 
+    agora = datetime.utcnow().isoformat()
+
     # cria o pedido
     pedido = (
         sb.table("pedidos")
@@ -41,9 +61,9 @@ def criar_pedido(numero, nome, estado, status, usuario):
             "estado_atual": estado,
             "status": status,
             "criado_por": usuario,
-            "criado_em": datetime.utcnow().isoformat(),
+            "criado_em": agora,
             "ultimo_usuario": usuario,
-            "ultima_hora": datetime.utcnow().isoformat(),
+            "ultima_hora": agora,
         })
         .execute()
         .data[0]
@@ -60,27 +80,39 @@ def criar_pedido(numero, nome, estado, status, usuario):
     return pedido
 
 
-def mover_pedido(pedido_id, estado_atual, novo_estado, usuario):
+def mover_pedido(pedido_id, estado_atual, novo_estado, usuario, setor_usuario):
     sb = get_supabase()
 
-    # atualiza pedido somente se o estado atual bater
+    # 1) validar permissão no backend
+    destinos_permitidos = (
+        PERMISSOES_POR_SETOR
+        .get(setor_usuario, {})
+        .get(estado_atual, [])
+    )
+
+    if novo_estado not in destinos_permitidos:
+        return False
+
+    agora = datetime.utcnow().isoformat()
+
+    # 2) atualizar pedido SOMENTE se o estado atual bater
     res = (
         sb.table("pedidos")
         .update({
             "estado_atual": novo_estado,
             "ultimo_mov_usuario": usuario,
-            "ultimo_mov_hora": datetime.utcnow().isoformat(),
+            "ultimo_mov_hora": agora,
         })
         .eq("id", pedido_id)
         .eq("estado_atual", estado_atual)
         .execute()
     )
 
-    # se não atualizou, alguém já moveu antes ou estado inválido
+    # se não atualizou, alguém já moveu ou estado estava errado
     if not res.data:
         return False
 
-    # registra evento de movimentação
+    # 3) registrar evento de movimentação
     registrar_evento(
         pedido_id=pedido_id,
         tipo_evento="MOVIMENTACAO",
