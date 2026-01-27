@@ -135,74 +135,90 @@ st.title("Fila de Pedidos")
 st.divider()
 
 # ======================
-# CRIAR PEDIDO — MODELO LEGADO
+# CRIAR PEDIDO — LAYOUT LEGADO
 # ======================
 
 if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
     with st.expander("Criar pedido", expanded=True):
 
-        c1, c2 = st.columns([1, 3])
-
-        numero = c1.text_input(
-            "Número",
-            placeholder="Ex.: 123"
-        )
-
-        nome = c2.text_input(
-            "Nome / Cliente",
-            placeholder="Ex.: Nome do cliente"
-        )
+        # Inputs
+        i1, i2 = st.columns([1, 3])
+        numero = i1.text_input("Número", placeholder="Ex.: 123")
+        nome   = i2.text_input("Nome / Cliente", placeholder="Ex.: Nome do cliente")
 
         st.divider()
 
-        b1, b2, b3, b4 = st.columns(4)
+        # Linha de ações (Criar + 4 atalhos)
+        c0, c1, c2, c3, c4 = st.columns([1.2, 1, 1, 1, 1])
 
-        def _criar_base(marca=None, ir_montagem=False):
+        def _validar():
             if not numero or not nome:
                 st.warning("Preencha número e nome.")
-                return
+                return False
+            return True
 
-            pedido = criar_pedido(
-                numero=numero,
-                nome=nome,
-                estado="PEDIDO",
-                status="ATIVO",
-                usuario=st.session_state.usuario_logado
-            )
-
-            # Marca Programação / Importação (fila auxiliar)
-            if marca:
-                # isso depois vira coluna no banco (ex: marca_auxiliar)
-                pass
-
-            # Ir direto para Montagem (legado opcional)
-            if ir_montagem:
-                mover_pedido(
-                    pedido["id"],
-                    "PEDIDO",
-                    "EM_MONTAGEM",
-                    st.session_state.usuario_logado,
-                    st.session_state.setor_usuario
-                )
-
-            st.success("Pedido criado.")
-            st.rerun()
-
-        with b1:
+        with c0:
             if st.button("Criar"):
-                _criar_base()
+                if _validar():
+                    criar_pedido(
+                        numero=numero,
+                        nome=nome,
+                        estado="PEDIDO",
+                        status="ATIVO",
+                        usuario=st.session_state.usuario_logado
+                    )
+                    st.success("Pedido criado.")
+                    st.rerun()
 
-        with b2:
+        with c1:
             if st.button("⭐ Programação"):
-                _criar_base(marca="PROGRAMACAO")
+                if _validar():
+                    pedido = criar_pedido(
+                        numero=numero,
+                        nome=nome,
+                        estado="PEDIDO",
+                        status="ATIVO",
+                        usuario=st.session_state.usuario_logado
+                    )
+                    # marca auxiliar entra depois (bloco 4.7)
+                    st.success("Criado (Programação).")
+                    st.rerun()
 
-        with b3:
+        with c2:
             if st.button("⭐ Importação"):
-                _criar_base(marca="IMPORTACAO")
+                if _validar():
+                    pedido = criar_pedido(
+                        numero=numero,
+                        nome=nome,
+                        estado="PEDIDO",
+                        status="ATIVO",
+                        usuario=st.session_state.usuario_logado
+                    )
+                    st.success("Criado (Importação).")
+                    st.rerun()
 
-        with b4:
+        with c3:
             if st.button("➡️ Montagem"):
-                _criar_base(ir_montagem=True)
+                if _validar():
+                    pedido = criar_pedido(
+                        numero=numero,
+                        nome=nome,
+                        estado="PEDIDO",
+                        status="ATIVO",
+                        usuario=st.session_state.usuario_logado
+                    )
+                    mover_pedido(
+                        pedido["id"],
+                        "PEDIDO",
+                        "EM_MONTAGEM",
+                        st.session_state.usuario_logado,
+                        st.session_state.setor_usuario
+                    )
+                    st.success("Criado e enviado para Montagem.")
+                    st.rerun()
+
+        with c4:
+            st.caption("")  # coluna vazia só para manter espaçamento
 
 else:
     st.caption("🔒 Somente VENDAS pode criar pedidos.")
