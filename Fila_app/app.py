@@ -152,17 +152,6 @@ if PERMISSOES_POR_TIPO[st.session_state.setor_usuario]["CRIAR"]:
             placeholder="Ex.: Nome do cliente"
         )
 
-        estado = col3.selectbox(
-            "Estado",
-            ESTADOS_DB,
-            index=0
-        )
-
-        status = col4.selectbox(
-            "Status",
-            STATUS_DB,
-            index=0
-        )
 
         if st.button("Criar"):
             if not numero or not nome:
