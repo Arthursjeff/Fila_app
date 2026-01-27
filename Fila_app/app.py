@@ -185,6 +185,11 @@ def toggle_pedido(pedido_id):
     atual = st.session_state.ui.get("pedido_aberto")
     st.session_state.ui["pedido_aberto"] = None if atual == pedido_id else pedido_id
 
+def pode_mover(setor_usuario, estado_atual, destino):
+    return destino in PERMISSOES_POR_TIPO \
+        .get(setor_usuario, {}) \
+        .get("MOVE", {}) \
+        .get(estado_atual, [])
 
 
 def render_setor_base(estado, container):
@@ -259,12 +264,66 @@ def render_setor_base(estado, container):
 
                     st.divider()
 
-                    # Botões (placeholder — regras entram no próximo bloco)
+                    # ======================
+                    # BOTÕES DE MOVIMENTAÇÃO
+                    # ======================
+                    idx = ESTADOS_VISUAIS.index(estado)
+
                     c1, c2 = st.columns(2)
+
+                    # ← VOLTAR
                     with c1:
-                        st.button("⬅️ Voltar", disabled=True)
+                        if idx > 0:
+                            destino_voltar = ESTADOS_VISUAIS[idx - 1]
+                            permitido = pode_mover(
+                                st.session_state.setor_usuario,
+                                estado,
+                                destino_voltar
+                            )
+
+                            if st.button(
+                                "⬅️ Voltar",
+                                key=f"back-{p['id']}",
+                                disabled=not permitido
+                            ):
+                                mover_pedido(
+                                    p["id"],
+                                    estado,
+                                    destino_voltar,
+                                    st.session_state.usuario_logado,
+                                    st.session_state.setor_usuario
+                                )
+                                st.session_state.ui["pedido_aberto"] = None
+                                st.rerun()
+                        else:
+                            st.button("⬅️ Voltar", disabled=True)
+
+                    # → AVANÇAR
                     with c2:
-                        st.button("➡️ Avançar", disabled=True)
+                        if idx < len(ESTADOS_VISUAIS) - 1:
+                            destino_avancar = ESTADOS_VISUAIS[idx + 1]
+                            permitido = pode_mover(
+                                st.session_state.setor_usuario,
+                                estado,
+                                destino_avancar
+                            )
+
+                            if st.button(
+                                "➡️ Avançar",
+                                key=f"next-{p['id']}",
+                                disabled=not permitido
+                            ):
+                                mover_pedido(
+                                    p["id"],
+                                    estado,
+                                    destino_avancar,
+                                    st.session_state.usuario_logado,
+                                    st.session_state.setor_usuario
+                                )
+                                st.session_state.ui["pedido_aberto"] = None
+                                st.rerun()
+                        else:
+                            st.button("➡️ Avançar", disabled=True)
 
                     st.divider()
 
