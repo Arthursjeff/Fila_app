@@ -8,38 +8,28 @@ st.set_page_config(
 )
 
 init_session()
+inject_css()
 
-# ====== ESCONDER SIDEBAR + NAV AUTOMÁTICO ANTES DO LOGIN ======
-if not st.session_state.get("logado", False):
+# ====== NÃO LOGADO ======
+if not st.session_state.logado:
     st.markdown(
         """
         <style>
-          /* some a sidebar inteira antes do login */
           [data-testid="stSidebar"] { display: none !important; }
-
-          /* some o botão/setinha/hamburger da sidebar */
-          button[kind="header"] { display: none !important; }
-
-          /* some o "Page navigation" automático */
           [data-testid="stSidebarNav"] { display: none !important; }
+          button[kind="header"] { display: none !important; }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-# CSS geral do app
-inject_css()
-
-# ====== LOGIN ======
-if not st.session_state.get("logado", False):
     gate_login()
     st.stop()
 
-# ====== LOGADO: esconder APENAS o menu automático do Streamlit ======
+# ====== LOGADO ======
 st.markdown(
     """
     <style>
-      /* remove o menu automático de pages */
       [data-testid="stSidebarNav"] { display: none !important; }
     </style>
     """,
