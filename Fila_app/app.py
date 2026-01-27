@@ -5,6 +5,35 @@ st.set_page_config(page_title="Fila de Pedidos", layout="wide")
 st.session_state.setdefault("show_nf_modal", False)
 st.session_state.setdefault("nf_pedido_id", None)
 
+st.markdown("""
+<style>
+  /* Expander compacto */
+  [data-testid="stExpander"] {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin: 4px 0;
+  }
+
+  details[data-testid="stExpander"] > summary {
+    padding: 4px 8px !important;
+    font-size: 0.9rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Botões mais compactos */
+  .stButton { margin: 2px 0 !important; }
+  .stButton button {
+    padding: 4px 8px;
+    line-height: 1.1;
+    font-size: 0.85rem;
+  }
+</style>
+""", unsafe_allow_html=True)
+
+
 # ======================
 # CONFIG / CONSTANTES
 # ======================
@@ -268,7 +297,16 @@ def _usuario_curto(p):
     )
 
 def _label_compacto(p):
-    return f"{p['numero_pedido']} - {p['nome_pedido']} — {_hora_curta(p)} — {_usuario_curto(p)}"
+    nome = f"{p['numero_pedido']} - {p['nome_pedido']}".upper()
+    hora = _hora_curta(p)
+    usuario = _usuario_curto(p)
+    partes = [nome]
+    if hora:
+        partes.append(hora)
+    if usuario:
+        partes.append(usuario)
+    return " — ".join(partes)
+
 
 
 def toggle_pedido(pedido_id):
