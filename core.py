@@ -34,8 +34,7 @@ USUARIOS = {
             "CRIAR_PEDIDO": False,
             "MOVE": {
                 "PEDIDO": ["EM_MONTAGEM"],
-                "EM_MONTAGEM": ["PROGRAMADOS_IMPORTACAO", "MONTADOS"],
-                "PROGRAMADOS_IMPORTACAO": ["MONTADOS"],
+                "EM_MONTAGEM": ["MONTADOS"],
                 "FATURADO": ["EMBALADO"],
                 "EMBALADO": ["RETIRADO"],
             },
