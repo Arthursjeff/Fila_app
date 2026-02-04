@@ -1,5 +1,5 @@
 import streamlit as st
-from core import init_session, inject_css, gate_login,
+from core import init_session, inject_css, gate_login
 
 st.set_page_config(
     page_title="Sistema de Pedidos",
@@ -56,4 +56,5 @@ with st.sidebar:
     if st.button("🚪 Sair", use_container_width=True):
         st.session_state.logado = False
         st.rerun()
+
 
