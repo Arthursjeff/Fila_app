@@ -42,7 +42,6 @@ USUARIOS = {
     },
 }
 
-
 ESTADOS_VISUAIS = [
     "PEDIDO",
     "EM_MONTAGEM",
@@ -80,11 +79,8 @@ def init_session():
     st.session_state.setdefault("nome_usuario", None)
     st.session_state.setdefault("setor_usuario", None)
     st.session_state.setdefault("permissoes", {})
-
-    # 🔴 ISSO FALTAVA E QUEBRAVA A FILA
     st.session_state.setdefault("ui", {})
     st.session_state.ui.setdefault("pedido_aberto", None)
-
 
 # ==========================================================
 # CSS GLOBAL
@@ -119,27 +115,6 @@ def inject_css():
 # LOGIN
 # ==========================================================
 
-def tela_login():
-    st.title("Login")
-
-    setor = st.selectbox("Setor", ["", "VENDAS", "MONTAGEM"])
-    usuarios = list(USUARIOS_POR_SETOR.get(setor, {}).keys())
-    usuario = st.selectbox("Usuário", [""] + usuarios)
-    senha = st.text_input("Senha", type="password")
-
-    if st.button("Entrar"):
-        if not setor or not usuario or not senha:
-            st.error("Preencha setor, usuário e senha.")
-            return
-
-        if senha != USUARIOS_POR_SETOR[setor].get(usuario):
-            st.error("Senha incorreta.")
-            return
-
-        st.session_state.usuario_logado = usuario
-        st.session_state.setor_usuario = setor
-        st.rerun()
-
 def gate_login():
     st.title("🔐 Login")
 
@@ -162,7 +137,6 @@ def gate_login():
         st.session_state.permissoes = USUARIOS[usuario]["permissoes"]
 
         st.rerun()
-
 
 # ==========================================================
 # HELPERS
@@ -191,7 +165,6 @@ def pode_mover(estado_atual, destino):
     perms = st.session_state.permissoes.get("MOVE", {})
     return destino in perms.get(estado_atual, [])
 
-
 # ==========================================================
 # RENDER — CRIAR PEDIDO
 # ==========================================================
@@ -206,8 +179,8 @@ def render_criar_pedido():
 
     numero = st.text_input("Número", key="numero")
     nome = st.text_input("Nome / Cliente", key="nome")
-   
- tipo_pedido = st.radio(
+
+    tipo_pedido = st.radio(
         "Tipo do pedido",
         ["NORMAL", "PROGRAMADO", "IMPORTACAO"],
         horizontal=True
@@ -240,7 +213,6 @@ def render_fila():
     st.divider()
 
     pedidos = listar_pedidos()
-
     linhas = [st.columns(3), st.columns(3)]
 
     for idx, estado in enumerate(ESTADOS_VISUAIS):
@@ -276,12 +248,12 @@ def render_setor(estado, container, pedidos):
                     with c1:
                         if idx > 0:
                             destino = ESTADOS_VISUAIS[idx - 1]
-                            if st.button("⬅️ Voltar", disabled=not pode_mover(
-                                estado, destino
-                            )):
-                                mover_pedido(p["id"], estado, destino,
-                                             st.session_state.usuario_logado,
-                                             st.session_state.setor_usuario)
+                            if st.button("⬅️ Voltar", disabled=not pode_mover(estado, destino)):
+                                mover_pedido(
+                                    p["id"], estado, destino,
+                                    st.session_state.usuario_logado,
+                                    st.session_state.setor_usuario
+                                )
                                 toggle_pedido(p["id"])
                                 st.rerun()
                         else:
@@ -290,12 +262,12 @@ def render_setor(estado, container, pedidos):
                     with c2:
                         if idx < len(ESTADOS_VISUAIS) - 1:
                             destino = ESTADOS_VISUAIS[idx + 1]
-                            if st.button("➡️ Avançar", disabled=not pode_mover(
-                                 estado, destino
-                            )):
-                                mover_pedido(p["id"], estado, destino,
-                                             st.session_state.usuario_logado,
-                                             st.session_state.setor_usuario)
+                            if st.button("➡️ Avançar", disabled=not pode_mover(estado, destino)):
+                                mover_pedido(
+                                    p["id"], estado, destino,
+                                    st.session_state.usuario_logado,
+                                    st.session_state.setor_usuario
+                                )
                                 toggle_pedido(p["id"])
                                 st.rerun()
                         else:
