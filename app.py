@@ -1,28 +1,24 @@
 import streamlit as st
-from core import init_session, inject_css, gate_login
-
-# ==========================================================
-# CONFIGURAÇÃO DA PÁGINA
-# ==========================================================
+from core import (
+    init_session,
+    inject_css,
+    gate_login,
+    render_fila,
+    render_criar_pedido,
+)
 
 st.set_page_config(
     page_title="Sistema de Pedidos",
     layout="wide",
 )
 
-# ==========================================================
-# INIT
-# ==========================================================
-
 init_session()
 inject_css()
 
-# ==========================================================
+# =========================
 # NÃO LOGADO
-# ==========================================================
-
+# =========================
 if not st.session_state.logado:
-    # Esconde sidebar APENAS visualmente (sem quebrar foco)
     st.markdown(
         """
         <style>
@@ -35,11 +31,9 @@ if not st.session_state.logado:
     gate_login()
     st.stop()
 
-# ==========================================================
+# =========================
 # LOGADO
-# ==========================================================
-
-# Sidebar visível novamente
+# =========================
 st.markdown(
     """
     <style>
@@ -55,17 +49,16 @@ st.caption(
     f"({st.session_state.setor_usuario})"
 )
 
-# ==========================================================
-# SIDEBAR
-# ==========================================================
-
+# =========================
+# SIDEBAR ÚNICA
+# =========================
 with st.sidebar:
     st.markdown("## 📁 Navegação")
 
     pagina = st.radio(
-        "Ir para:",
+        "",
         ["Fila de Pedidos", "Criar Pedido"],
-        label_visibility="collapsed"
+        index=0
     )
 
     st.divider()
@@ -74,14 +67,10 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-# ==========================================================
-# CONTEÚDO PRINCIPAL
-# ==========================================================
-
+# =========================
+# CONTEÚDO
+# =========================
 if pagina == "Criar Pedido":
-    from core import render_criar_pedido
     render_criar_pedido()
-
 else:
-    from core import render_fila
     render_fila()
